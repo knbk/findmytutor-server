@@ -1,3 +1,7 @@
-from django.test import TestCase
+from rest_framework.test import APITestCase
 
-# Create your tests here.
+
+class AccountsTestCase(TestCase):
+    def test_list_accounts(self):
+        response = self.client.get(reverse('student-list'))
+        self.assertEqual(response.status_code, 200)
