@@ -1,9 +1,10 @@
 import datetime
+from decimal import Decimal
 
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from .models import Profile, User, Student
+from .models import Profile, Student, Tutor, User
 
 
 class AccountsTestCase(APITestCase):
@@ -17,6 +18,10 @@ class AccountsTestCase(APITestCase):
 
     def test_list_students(self):
         response = self.client.get(reverse('student-list'))
+        self.assertEqual(response.status_code, 200)
+
+    def test_list_tutors(self):
+        response = self.client.get(reverse('tutor-list'))
         self.assertEqual(response.status_code, 200)
 
     def test_list_users(self):
@@ -38,12 +43,12 @@ class AccountsTestCase(APITestCase):
             ]
         )
         profile = Profile.objects.get(user__username='marten')
-        self.assertEqual(profile.type, 'student')
+        self.assertEqual(profile.type, Profile.STUDENT)
         self.assertEqual(profile.date_of_birth, datetime.date(1999, 12, 31))
         self.assertEqual(profile.gender, 'Male')
 
     def test_update_student(self):
-        profile = Profile.objects.create(user=self.user, type='student')
+        profile = Profile.objects.create(user=self.user, type=Profile.STUDENT)
         student = Student.objects.create(profile=profile)
         data = {
             'username': 'marten',
@@ -53,6 +58,50 @@ class AccountsTestCase(APITestCase):
         response = self.client.put(reverse('student-detail', kwargs={'pk': student.pk}), data=data)
         self.assertEqual(response.status_code, 200)
         profile.refresh_from_db()
-        self.assertEqual(profile.type, 'student')
+        self.assertEqual(profile.type, Profile.STUDENT)
         self.assertEqual(profile.date_of_birth, datetime.date(1999, 12, 31))
         self.assertEqual(profile.gender, 'Male')
+
+    def test_create_tutor(self):
+        data = {
+            'username': 'marten',
+            'date_of_birth': '1999-12-31',
+            'gender': 'Male',
+            'hourly_rate': '35.00',
+            'available': 'false',
+        }
+        response = self.client.post(reverse('tutor-list'), data=data)
+        self.assertEqual(response.status_code, 201)
+        self.assertQuerysetEqual(
+            Profile.objects.filter(user__username='marten'),
+            [
+                '<Profile: marten>',
+            ]
+        )
+        profile = Profile.objects.get(user__username='marten')
+        self.assertEqual(profile.type, 'tutor')
+        self.assertEqual(profile.date_of_birth, datetime.date(1999, 12, 31))
+        self.assertEqual(profile.gender, 'Male')
+        tutor = profile.tutor
+        self.assertEqual(tutor.hourly_rate, Decimal('35.00'))
+        self.assertFalse(tutor.available)
+
+    def test_update_tutor(self):
+        profile = Profile.objects.create(user=self.user, type=Profile.TUTOR)
+        tutor = Tutor.objects.create(profile=profile, hourly_rate='0.00', available=False)
+        data = {
+            'username': 'marten',
+            'date_of_birth': '1999-12-31',
+            'gender': 'Male',
+            'hourly_rate': '35.00',
+            'available': 'true',
+        }
+        response = self.client.put(reverse('tutor-detail', kwargs={'pk': tutor.pk}), data=data)
+        self.assertEqual(response.status_code, 200)
+        profile.refresh_from_db()
+        self.assertEqual(profile.type, Profile.TUTOR)
+        self.assertEqual(profile.date_of_birth, datetime.date(1999, 12, 31))
+        self.assertEqual(profile.gender, 'Male')
+        tutor.refresh_from_db()
+        self.assertEqual(tutor.hourly_rate, Decimal('35.00'))
+        self.assertEqual(tutor.available, True)
