@@ -1,7 +1,9 @@
+import datetime
+
 from django.urls import reverse
 from rest_framework.test import APITestCase
 
-from .models import Profile, User
+from .models import Profile, User, Student
 
 
 class AccountsTestCase(APITestCase):
@@ -35,3 +37,22 @@ class AccountsTestCase(APITestCase):
                 '<Profile: marten>',
             ]
         )
+        profile = Profile.objects.get(user__username='marten')
+        self.assertEqual(profile.type, 'student')
+        self.assertEqual(profile.date_of_birth, datetime.date(1999, 12, 31))
+        self.assertEqual(profile.gender, 'Male')
+
+    def test_update_student(self):
+        profile = Profile.objects.create(user=self.user, type='student')
+        student = Student.objects.create(profile=profile)
+        data = {
+            'username': 'marten',
+            'date_of_birth': '1999-12-31',
+            'gender': 'Male',
+        }
+        response = self.client.put(reverse('student-detail', kwargs={'pk': student.pk}), data=data)
+        self.assertEqual(response.status_code, 200)
+        profile.refresh_from_db()
+        self.assertEqual(profile.type, 'student')
+        self.assertEqual(profile.date_of_birth, datetime.date(1999, 12, 31))
+        self.assertEqual(profile.gender, 'Male')
