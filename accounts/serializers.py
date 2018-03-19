@@ -4,9 +4,11 @@ from .models import User, Student, Tutor, Profile, Location
 
 
 class UserSerializer(serializers.ModelSerializer):
+    pk = serializers.HyperlinkedIdentityField(view_name='user-detail')
+
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name']
+        fields = ['pk', 'username', 'email', 'first_name', 'last_name']
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -16,6 +18,7 @@ class LocationSerializer(serializers.ModelSerializer):
 
 
 class StudentSerializer(serializers.ModelSerializer):
+    pk = serializers.HyperlinkedIdentityField(view_name='student-detail')
     username = serializers.CharField(source='profile.user.username')
     date_of_birth = serializers.DateField(source='profile.date_of_birth')
     gender = serializers.CharField(source='profile.gender')
