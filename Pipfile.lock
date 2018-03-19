@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3f70bfe80cecdc307664e0d73741b8297aa296464151893b94fbaa7996b36c2d"
+            "sha256": "4f44104656300a44e670af8ddd967f333bcf9bb60aba11b6ee6f42f43c0d0fa7"
         },
         "host-environment-markers": {
             "implementation_name": "cpython",
@@ -9,9 +9,9 @@
             "os_name": "posix",
             "platform_machine": "x86_64",
             "platform_python_implementation": "CPython",
-            "platform_release": "4.13.0-36-generic",
+            "platform_release": "4.13.0-37-generic",
             "platform_system": "Linux",
-            "platform_version": "#40-Ubuntu SMP Fri Feb 16 20:07:48 UTC 2018",
+            "platform_version": "#42-Ubuntu SMP Wed Mar 7 14:13:23 UTC 2018",
             "python_full_version": "3.6.3",
             "python_version": "3.6",
             "sys_platform": "linux"
@@ -56,6 +56,13 @@
                 "sha256:9f9e94e8d22b100ed3a43cee8c47a7ff7b185e778a1f2da9ec5c73fc4e081b87"
             ],
             "version": "==3.7.7"
+        },
+        "drf-nested-routers": {
+            "hashes": [
+                "sha256:a4d97de1be554f5db3fd11c881f578d10a3e1324b6e99be1749a11c7248d3360",
+                "sha256:52cbc4900e3ccd652bfb73017ff466d7b3e4d99838c912c250d75763b32669af"
+            ],
+            "version": "==0.90.2"
         },
         "gunicorn": {
             "hashes": [

@@ -19,8 +19,7 @@ class LocationSerializer(serializers.ModelSerializer):
 
 class StudentSerializer(serializers.ModelSerializer):
     pk = serializers.HyperlinkedIdentityField(view_name='student-detail')
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    username = serializers.CharField(source='user.username', read_only=True)
+    username = serializers.CharField(source='user.username')
     date_of_birth = serializers.DateField()
     gender = serializers.CharField()
     tutors = serializers.StringRelatedField(many=True, read_only=True)
@@ -28,7 +27,7 @@ class StudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Student
-        fields = ['pk', 'user', 'username', 'date_of_birth', 'gender', 'tutors', 'locations']
+        fields = ['pk', 'username', 'date_of_birth', 'gender', 'tutors', 'locations']
 
     def create(self, validated_data):
         user = validated_data['user']
@@ -36,11 +35,16 @@ class StudentSerializer(serializers.ModelSerializer):
         user.save(update_fields=['type'])
         return super().create(validated_data)
 
+    def update(self, instance, validated_data):
+        user = instance.user
+        user.username = validated_data.pop('user')['username']
+        user.save(update_fields=['username'])
+        return super().update(instance, validated_data)
+
 
 class TutorSerializer(serializers.ModelSerializer):
     pk = serializers.HyperlinkedIdentityField(view_name='tutor-detail')
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    username = serializers.CharField(source='user.username', read_only=True)
+    username = serializers.CharField(source='user.username')
     date_of_birth = serializers.DateField()
     gender = serializers.CharField()
     hourly_rate = serializers.DecimalField(10, 2)
@@ -50,10 +54,16 @@ class TutorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tutor
-        fields = ['pk', 'user', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'available', 'students', 'locations']
+        fields = ['pk', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'available', 'students', 'locations']
 
     def create(self, validated_data):
         user = validated_data['user']
         user.type = User.TUTOR
         user.save(update_fields=['type'])
         return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        user = instance.user
+        user.username = validated_data.pop('user')['username']
+        user.save(update_fields=['username'])
+        return super().update(instance, validated_data)

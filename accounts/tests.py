@@ -2,7 +2,7 @@ import datetime
 from decimal import Decimal
 
 from django.urls import reverse
-from rest_framework.test import APITestCase
+from rest_framework.test import APITestCase, APIClient
 
 from .models import Profile, Student, Tutor, User
 
@@ -10,7 +10,8 @@ from .models import Profile, Student, Tutor, User
 class AccountsTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = User.objects.create_user('test_user', 'test_user@example.com')
+        cls.new_student = User.objects.create_user('new_student', 'new_student@example.com')
+        cls.new_tutor = User.objects.create_user('new_tutor', 'new_tutor@example.com')
         cls.student = User.objects.create_user('student', 'student@example.com', type=User.STUDENT)
         Student.objects.create(
             user=cls.student, date_of_birth=datetime.date(1999, 12, 31), gender='Male',
@@ -55,19 +56,21 @@ class AccountsTestCase(APITestCase):
 
     def test_create_student(self):
         data = {
-            'user': self.user.id,
+            'username': 'new_student',
             'date_of_birth': '1999-12-31',
             'gender': 'Male',
         }
-        response = self.client.post(reverse('student-list'), data=data)
+        client = APIClient()
+        client.force_authenticate(user=self.new_student)
+        response = client.post(reverse('student-list'), data=data, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertQuerysetEqual(
-            Student.objects.filter(user__username='test_user'),
+            Student.objects.filter(user_id=self.new_student.pk),
             [
-                '<Student: test_user>',
+                '<Student: new_student>',
             ]
         )
-        student = Student.objects.get(user__username='test_user')
+        student = Student.objects.get(user_id=self.new_student.pk)
         self.assertEqual(student.user.type, User.STUDENT)
         self.assertEqual(student.date_of_birth, datetime.date(1999, 12, 31))
         self.assertEqual(student.gender, 'Male')
@@ -76,35 +79,40 @@ class AccountsTestCase(APITestCase):
         user = self.student
         student = user.student
         data = {
-            'user': user.pk,
+            'username': 'updated_student',
             'date_of_birth': '1994-12-31',
             'gender': 'Female',
         }
-        response = self.client.put(reverse('student-detail', kwargs={'pk': student.pk}), data=data)
+        client = APIClient()
+        client.force_authenticate(user=self.student)
+        response = client.put(reverse('student-detail', kwargs={'pk': student.pk}), data=data)
         self.assertEqual(response.status_code, 200)
-        student.refresh_from_db()
+        user = User.objects.get(pk=user.pk)
+        self.assertEqual(user.username, 'updated_student')
+        student = user.student
         self.assertEqual(student.date_of_birth, datetime.date(1994, 12, 31))
         self.assertEqual(student.gender, 'Female')
 
     def test_create_tutor(self):
         data = {
-            'user': self.user.pk,
+            'username': 'new_tutor',
             'date_of_birth': '1999-12-31',
             'gender': 'Male',
             'hourly_rate': '35.00',
             'available': 'false',
         }
-        response = self.client.post(reverse('tutor-list'), data=data, format='json')
+        client = APIClient()
+        client.force_authenticate(user=self.new_tutor)
+        response = client.post(reverse('tutor-list'), data=data, format='json')
         self.assertEqual(response.status_code, 201)
         self.assertQuerysetEqual(
-            Tutor.objects.filter(user__username='test_user'),
+            Tutor.objects.filter(user_id=self.new_tutor.pk),
             [
-                '<Tutor: test_user>',
+                '<Tutor: new_tutor>',
             ]
         )
-        user = User.objects.get(username='test_user')
-        self.assertEqual(user.type, User.TUTOR)
-        tutor = user.tutor
+        tutor = Tutor.objects.get(user_id=self.new_tutor.pk)
+        self.assertEqual(tutor.user.type, User.TUTOR)
         self.assertEqual(tutor.date_of_birth, datetime.date(1999, 12, 31))
         self.assertEqual(tutor.gender, 'Male')
         self.assertEqual(tutor.hourly_rate, Decimal('35.00'))
@@ -114,17 +122,20 @@ class AccountsTestCase(APITestCase):
         user = self.tutor
         tutor = user.tutor
         data = {
-            'user': user.pk,
+            'username': 'updated_tutor',
             'date_of_birth': '1994-12-31',
             'gender': 'Male',
             'hourly_rate': '45.00',
             'available': 'false',
         }
-        response = self.client.put(reverse('tutor-detail', kwargs={'pk': tutor.pk}), data=data, format='json')
+        client = APIClient()
+        client.force_authenticate(user=self.tutor)
+        response = client.put(reverse('tutor-detail', kwargs={'pk': tutor.pk}), data=data, format='json')
         self.assertEqual(response.status_code, 200)
-        user = User.objects.get(username='tutor')
+        user = User.objects.get(pk=user.pk)
         self.assertEqual(user.type, User.TUTOR)
-        tutor.refresh_from_db()
+        self.assertEqual(user.username, 'updated_tutor')
+        tutor = user.tutor
         self.assertEqual(tutor.date_of_birth, datetime.date(1994, 12, 31))
         self.assertEqual(tutor.gender, 'Male')
         self.assertEqual(tutor.hourly_rate, Decimal('45.00'))
