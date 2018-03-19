@@ -16,10 +16,10 @@ class LocationSerializer(serializers.ModelSerializer):
 
 
 class StudentSerializer(serializers.ModelSerializer):
-    username = serializers.CharField()
-    date_of_birth = serializers.DateField()
-    gender = serializers.CharField()
-    tutors = serializers.StringRelatedField(many=True)
+    username = serializers.CharField(source='profile.user.username')
+    date_of_birth = serializers.DateField(source='profile.date_of_birth')
+    gender = serializers.CharField(source='profile.gender')
+    tutors = serializers.StringRelatedField(many=True, read_only=True)
     locations = LocationSerializer(many=True, read_only=True)
 
     class Meta:
@@ -27,7 +27,7 @@ class StudentSerializer(serializers.ModelSerializer):
         fields = ['username', 'date_of_birth', 'gender', 'tutors', 'locations']
 
     def create(self, validated_data):
-        user = User.objects.get(username=validated_data.pop('username'))
+        user = User.objects.get(username=validated_data.pop('profile')['user']['username'])
         profile = Profile.objects.create(user=user, type=Profile.STUDENT, **validated_data)
         student = Student.objects.create(profile=profile)
         return student
