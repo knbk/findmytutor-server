@@ -17,7 +17,7 @@ class LocationSerializer(serializers.ModelSerializer):
 
 class StudentSerializer(serializers.ModelSerializer):
     username = serializers.CharField()
-    date_of_birth = serializers.DateTimeField()
+    date_of_birth = serializers.DateField()
     gender = serializers.CharField()
     tutors = serializers.StringRelatedField(many=True)
     locations = LocationSerializer(many=True, read_only=True)
