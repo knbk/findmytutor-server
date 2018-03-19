@@ -49,3 +49,8 @@ class LocationViewSet(ModelViewSet):
     def get_queryset(self):
         obj = self.get_parent_object()
         return obj.locations.all()
+
+    def perform_create(self, serializer):
+        parent = self.get_parent_object()
+        obj = serializer.save()
+        parent.locations.add(obj)
