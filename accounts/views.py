@@ -1,5 +1,5 @@
-from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
+from rest_framework.exceptions import ValidationError
 from rest_framework.viewsets import ModelViewSet
 
 from .models import Location, Student, Tutor, User
