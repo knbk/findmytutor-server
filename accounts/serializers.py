@@ -12,9 +12,11 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class LocationSerializer(serializers.ModelSerializer):
+    pk = serializers.HyperlinkedIdentityField(view_name='location-detail')
+
     class Meta:
         model = Location
-        fields = ['city', 'street_address', 'zip_code', 'latitude', 'longitude']
+        fields = ['pk', 'city', 'street_address', 'zip_code', 'latitude', 'longitude']
 
 
 class StudentSerializer(serializers.ModelSerializer):

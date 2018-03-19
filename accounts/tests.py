@@ -10,7 +10,13 @@ from .models import Profile, Student, Tutor, User
 class AccountsTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.user = User.objects.create_user('marten', 'marten.knbk@gmail.com')
+        cls.user = User.objects.create_user('test_user', 'test_user@example.com')
+        cls.student = User.objects.create_user('student', 'student@example.com')
+        student_profile = Profile.objects.create(user=cls.student, type=Profile.STUDENT)
+        student = Student.objects.create(profile=student_profile)
+        cls.tutor = User.objects.create_user('tutor', 'tutor@example.com')
+        tutor_profile = Profile.objects.create(user=cls.tutor, type=Profile.TUTOR)
+        tutor = Tutor.objects.create(profile=tutor_profile)
 
     def test_root_api_view(self):
         response = self.client.get('/api/')
@@ -30,19 +36,19 @@ class AccountsTestCase(APITestCase):
 
     def test_create_student(self):
         data = {
-            'username': 'marten',
+            'username': 'test_user',
             'date_of_birth': '1999-12-31',
             'gender': 'Male',
         }
         response = self.client.post(reverse('student-list'), data=data)
         self.assertEqual(response.status_code, 201)
         self.assertQuerysetEqual(
-            Profile.objects.filter(user__username='marten'),
+            Profile.objects.filter(user__username='test_user'),
             [
-                '<Profile: marten>',
+                '<Profile: test_user>',
             ]
         )
-        profile = Profile.objects.get(user__username='marten')
+        profile = Profile.objects.get(user__username='test_user')
         self.assertEqual(profile.type, Profile.STUDENT)
         self.assertEqual(profile.date_of_birth, datetime.date(1999, 12, 31))
         self.assertEqual(profile.gender, 'Male')
@@ -51,7 +57,7 @@ class AccountsTestCase(APITestCase):
         profile = Profile.objects.create(user=self.user, type=Profile.STUDENT)
         student = Student.objects.create(profile=profile)
         data = {
-            'username': 'marten',
+            'username': 'test_user',
             'date_of_birth': '1999-12-31',
             'gender': 'Male',
         }
@@ -64,7 +70,7 @@ class AccountsTestCase(APITestCase):
 
     def test_create_tutor(self):
         data = {
-            'username': 'marten',
+            'username': 'test_user',
             'date_of_birth': '1999-12-31',
             'gender': 'Male',
             'hourly_rate': '35.00',
@@ -73,12 +79,12 @@ class AccountsTestCase(APITestCase):
         response = self.client.post(reverse('tutor-list'), data=data)
         self.assertEqual(response.status_code, 201)
         self.assertQuerysetEqual(
-            Profile.objects.filter(user__username='marten'),
+            Profile.objects.filter(user__username='test_user'),
             [
-                '<Profile: marten>',
+                '<Profile: test_user>',
             ]
         )
-        profile = Profile.objects.get(user__username='marten')
+        profile = Profile.objects.get(user__username='test_user')
         self.assertEqual(profile.type, 'tutor')
         self.assertEqual(profile.date_of_birth, datetime.date(1999, 12, 31))
         self.assertEqual(profile.gender, 'Male')
@@ -90,7 +96,7 @@ class AccountsTestCase(APITestCase):
         profile = Profile.objects.create(user=self.user, type=Profile.TUTOR)
         tutor = Tutor.objects.create(profile=profile, hourly_rate='0.00', available=False)
         data = {
-            'username': 'marten',
+            'username': 'test_user',
             'date_of_birth': '1999-12-31',
             'gender': 'Male',
             'hourly_rate': '35.00',

@@ -1,7 +1,8 @@
 from rest_framework.viewsets import ModelViewSet
 
-from .models import Student, User, Tutor
-from .serializers import StudentSerializer, UserSerializer, TutorSerializer
+from .models import Location, Student, Tutor, User
+from .serializers import (LocationSerializer, StudentSerializer,
+                          TutorSerializer, UserSerializer)
 
 
 class StudentViewSet(ModelViewSet):
@@ -17,3 +18,8 @@ class UserViewSet(ModelViewSet):
 class TutorViewSet(ModelViewSet):
     queryset = Tutor.objects.all()
     serializer_class = TutorSerializer
+
+
+class LocationViewSet(ModelViewSet):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer

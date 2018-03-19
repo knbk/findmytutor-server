@@ -35,8 +35,8 @@ class Tutor(models.Model):
     profile = models.OneToOneField('accounts.Profile', on_delete=models.CASCADE)
     location = models.ForeignKey('accounts.Location', on_delete=models.SET_NULL,
                                  blank=True, null=True, related_name='tutors+')
-    hourly_rate = models.DecimalField(max_digits=10, decimal_places=2)
-    available = models.BooleanField(blank=True)
+    hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    available = models.BooleanField(blank=True, default=True)
 
     def __str__(self):
         return f"{self.profile}"
