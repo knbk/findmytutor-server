@@ -12,27 +12,51 @@ class AccountsTestCase(APITestCase):
     def setUpTestData(cls):
         cls.user = User.objects.create_user('test_user', 'test_user@example.com')
         cls.student = User.objects.create_user('student', 'student@example.com')
-        student_profile = Profile.objects.create(user=cls.student, type=Profile.STUDENT)
+        student_profile = Profile.objects.create(
+            user=cls.student, type=Profile.STUDENT,
+            date_of_birth=datetime.date(1999, 12, 31), gender='Male',
+        )
         student = Student.objects.create(profile=student_profile)
         cls.tutor = User.objects.create_user('tutor', 'tutor@example.com')
-        tutor_profile = Profile.objects.create(user=cls.tutor, type=Profile.TUTOR)
-        tutor = Tutor.objects.create(profile=tutor_profile)
+        tutor_profile = Profile.objects.create(
+            user=cls.tutor, type=Profile.TUTOR,
+            date_of_birth=datetime.date(1999, 12, 31), gender='Female',
+        )
+        tutor = Tutor.objects.create(
+            profile=tutor_profile, hourly_rate='35.00', available=True,
+        )
 
     def test_root_api_view(self):
         response = self.client.get('/api/')
         self.assertEqual(response.status_code, 200)
 
+    def test_list_users(self):
+        response = self.client.get(reverse('user-list'))
+        self.assertEqual(response.status_code, 200)
+
     def test_list_students(self):
         response = self.client.get(reverse('student-list'))
         self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data), 1)
+        student = data[0]
+        self.assertEqual(student['username'], 'student')
+        self.assertEqual(student['date_of_birth'], '1999-12-31')
+        self.assertEqual(student['gender'], 'Male')
+        self.assertEqual(student['tutors'], [])
+        self.assertEqual(student['locations'], [])
 
     def test_list_tutors(self):
         response = self.client.get(reverse('tutor-list'))
         self.assertEqual(response.status_code, 200)
-
-    def test_list_users(self):
-        response = self.client.get(reverse('user-list'))
-        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data), 1)
+        tutor = data[0]
+        self.assertEqual(tutor['username'], 'tutor')
+        self.assertEqual(tutor['date_of_birth'], '1999-12-31')
+        self.assertEqual(tutor['gender'], 'Female')
+        self.assertEqual(tutor['students'], [])
+        self.assertEqual(tutor['location'], None)
 
     def test_create_student(self):
         data = {

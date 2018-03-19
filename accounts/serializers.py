@@ -55,10 +55,12 @@ class TutorSerializer(serializers.ModelSerializer):
     gender = serializers.CharField(source='profile.gender')
     hourly_rate = serializers.DecimalField(10, 2)
     available = serializers.BooleanField()
+    students = serializers.StringRelatedField(many=True, read_only=True)
+    location = LocationSerializer(many=False, read_only=True)
 
     class Meta:
         model = Tutor
-        fields = ['pk', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'available']
+        fields = ['pk', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'available', 'students', 'location']
 
     def create(self, validated_data):
         user = User.objects.get(username=validated_data['profile'].pop('user')['username'])
