@@ -18,8 +18,3 @@ class UserViewSet(ModelViewSet):
 class TutorViewSet(ModelViewSet):
     queryset = Tutor.objects.all()
     serializer_class = TutorSerializer
-
-
-class LocationViewSet(ModelViewSet):
-    queryset = Location.objects.all()
-    serializer_class = LocationSerializer

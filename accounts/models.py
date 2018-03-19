@@ -3,43 +3,41 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
-
-
-class Profile(models.Model):
     STUDENT = 'student'
     TUTOR = 'tutor'
     TYPES = [
         (STUDENT, 'Student'),
         (TUTOR, 'Tutor'),
     ]
-    user = models.OneToOneField('accounts.User', on_delete=models.CASCADE)
     type = models.CharField(max_length=20, choices=TYPES)
+
+
+class Profile(models.Model):
+    user = models.OneToOneField('accounts.User', on_delete=models.CASCADE, related_name='%(class)s')
+    locations = models.ManyToManyField('accounts.Location', related_name='%(class)s+')
     date_of_birth = models.DateField(blank=True, null=True)
     gender = models.CharField(max_length=50, blank=True)
+
+    class Meta:
+        abstract = True
 
     def __str__(self):
         return f"{self.user}"
 
 
-class Student(models.Model):
-    profile = models.OneToOneField('accounts.Profile', on_delete=models.CASCADE)
+class Student(Profile):
     tutors = models.ManyToManyField('accounts.Tutor', related_name='students')
-    locations = models.ManyToManyField('accounts.Location', related_name='students+')
-
+    
     def __str__(self):
-        return f"{self.profile}"
+        return f"{self.user}"
 
 
-class Tutor(models.Model):
-    profile = models.OneToOneField('accounts.Profile', on_delete=models.CASCADE)
-    location = models.ForeignKey('accounts.Location', on_delete=models.SET_NULL,
-                                 blank=True, null=True, related_name='tutors+')
+class Tutor(Profile):
     hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     available = models.BooleanField(blank=True, default=True)
 
     def __str__(self):
-        return f"{self.profile}"
+        return f"{self.user}"
 
 
 class Location(models.Model):
