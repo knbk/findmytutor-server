@@ -11,6 +11,14 @@ class User(AbstractUser):
     ]
     type = models.CharField(max_length=20, choices=TYPES)
 
+    @property
+    def profile(self):
+        if self.type == self.STUDENT:
+            return self.student
+        elif self.type == self.TUTOR:
+            return self.tutor
+        return None
+
 
 class Profile(models.Model):
     user = models.OneToOneField('accounts.User', on_delete=models.CASCADE, related_name='%(class)s')

@@ -48,6 +48,8 @@ INSTALLED_APPS = [
     'rest_framework',
 
     'accounts.apps.AccountsConfig',
+    'meetings.apps.MeetingsConfig',
+    'messages.apps.MessagesConfig',
 ]
 
 MIDDLEWARE = [

@@ -16,3 +16,6 @@ tutor_location_router = routers.NestedDefaultRouter(router, r'tutors', lookup='t
 tutor_location_router.register(r'locations', LocationViewSet, base_name='tutor-locations')
 
 urlpatterns = router.urls + student_location_router.urls + tutor_location_router.urls
+urlpatterns += [
+    path('', include('meetings.urls')),
+]
