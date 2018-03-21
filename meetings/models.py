@@ -24,6 +24,7 @@ class Meeting(models.Model):
 
 
 class Review(models.Model):
+    RATINGS = tuple((i, str(i)) for i in range(6))
     meeting = models.OneToOneField('meetings.Meeting', on_delete=models.CASCADE)
-    rating = models.IntegerField()
+    rating = models.IntegerField(choices=RATINGS)
     review = models.TextField(blank=True)

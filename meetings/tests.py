@@ -23,6 +23,31 @@ class MeetingsTestCase(APITestCase):
             user=cls.tutor, date_of_birth=datetime.date(1999, 12, 31), gender='Female',
             hourly_rate='35.00', available=True,
         )
+        now = timezone.now()
+        cls.future_meeting = Meeting.objects.create(
+            student=student, tutor=tutor, start=now + datetime.timedelta(days=1),
+            end=now + datetime.timedelta(days=1, hours=1),
+        )
+        cls.past_meeting = Meeting.objects.create(
+            student=student, tutor=tutor, start=now - datetime.timedelta(days=1, hours=1),
+            end=now - datetime.timedelta(days=1),
+        )
+
+    def test_create_invalid_meeting(self):
+        student = self.student.profile
+        tutor = self.tutor.profile
+        student.tutors.add(tutor)
+        data = {
+            'tutor': tutor.id,
+            'student': student.id,
+            'start': '2021-03-05 13:00:00',
+            'end': '2021-03-05 12:00:00',
+            'location': student.locations.first().pk,
+        }
+        client = APIClient()
+        client.force_authenticate(user=self.student)
+        response = client.post(reverse('meeting-list'), data=data, format='json')
+        self.assertEqual(response.status_code, 400)
 
     def test_create_meeting_as_student(self):
         student = self.student.profile
@@ -90,3 +115,20 @@ class MeetingsTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         meeting.refresh_from_db()
         self.assertFalse(meeting.is_cancelled)
+
+    def test_review(self):
+        data = {
+            'rating': '3',
+            'review': 'This was a great session!',
+        }
+        client = APIClient()
+        client.force_authenticate(user=self.student)
+        response = client.post(reverse('meeting-review', kwargs={'pk': self.future_meeting.pk}), data=data, format='json')
+        self.assertEqual(response.status_code, 400)
+
+        response = client.post(reverse('meeting-review', kwargs={'pk': self.past_meeting.pk}), data=data, format='json')
+        self.assertEqual(response.status_code, 201)
+        meeting = Meeting.objects.get(pk=self.past_meeting.pk)
+        review = meeting.review
+        self.assertEqual(review.rating, 3)
+        self.assertEqual(review.review, 'This was a great session!')

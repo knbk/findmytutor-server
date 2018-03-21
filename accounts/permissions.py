@@ -1,5 +1,7 @@
 from rest_framework import permissions
 
+from accounts.models import User
+
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
@@ -14,3 +16,8 @@ class IsParentOwnerOrReadOnly(permissions.BasePermission):
             return True
         parent = view.get_parent_object()
         return parent.user == request.user
+
+
+class IsStudent(permissions.IsAuthenticated):
+    def has_object_permission(self, request, view, obj):
+        return request.user.is_authenticated and request.user.type == User.STUDENT

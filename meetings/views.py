@@ -6,6 +6,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from accounts.models import User
+from accounts.permissions import IsStudent
 
 from .models import Meeting, Review
 from .serializers import MeetingSerializer, ReviewSerializer
@@ -58,3 +59,23 @@ class MeetingViewSet(ModelViewSet):
             obj.tutor_cancelled_at = timezone.now() if request.method == 'POST' else None
         obj.save()
         return Response({'status': 'meeting cancelled' if request.method == 'POST' else 'meeting reopened'})
+
+    @detail_route(['post', 'put', 'delete'], permission_classes=[IsStudent])
+    def review(self, request, pk):
+        meeting = self.get_object()
+        if meeting.end >= timezone.now():
+            raise ValidationError('cannot review meetings in the future')
+        if request.method == 'POST' or request.method == 'PUT':
+            review = getattr(meeting, 'review', None)
+            serializer = ReviewSerializer(instance=review, data=request.data)
+            if serializer.is_valid():
+                serializer.save(meeting=meeting)
+                return Response({'status': 'review saved'}, status=201 if request.method == 'POST' else 200)
+            return Response(serializer.errors, status=400)
+        if request.method == 'DELETE':
+            review = getattr(meeting, 'review', None)
+            if review:
+                review.delete()
+                return Response({'status': 'review deleted'})
+            return Response({'status': 'no review to delete'}, status=400)
+        self.http_method_not_allowed(request)
