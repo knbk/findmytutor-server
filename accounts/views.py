@@ -2,6 +2,8 @@ from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
 
 from .models import Location, Student, Tutor, User
 from .permissions import IsOwnerOrReadOnly, IsParentOwnerOrReadOnly
@@ -37,6 +39,19 @@ class StudentViewSet(ProfileMixin, ModelViewSet):
 class TutorViewSet(ProfileMixin, ModelViewSet):
     queryset = Tutor.objects.all()
     serializer_class = TutorSerializer
+
+    @detail_route(['post', 'delete'])
+    def my_tutors(self, request, pk):
+        if request.user.type != User.STUDENT:
+            self.permission_denied(request)
+        tutor = get_object_or_404(Tutor, pk=pk)
+        if request.method == "POST":
+            request.user.profile.tutors.add(tutor)
+            return Response({'status': 'tutor added to my tutors'})
+        if request.method == "DELETE":
+            request.user.profile.tutors.remove(tutor)
+            return Response({'status': 'tutor removed from my tutors'})
+        self.http_method_not_allowed(request)
 
 
 class LocationViewSet(ModelViewSet):

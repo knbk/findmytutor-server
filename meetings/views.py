@@ -25,3 +25,10 @@ class MeetingViewSet(ModelViewSet):
             data['tutor'] = self.request.user.tutor
             data['tutor_accepted_at'] = timezone.now()
         serializer.save(**data)
+
+    def perform_destroy(self, instance):
+        if self.request.user.type == User.STUDENT:
+            instance.student_cancelled_at = timezone.now()
+        else:
+            instance.tutor_cancelled_at = timezone.now()
+        instance.save()

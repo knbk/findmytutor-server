@@ -140,3 +140,23 @@ class AccountsTestCase(APITestCase):
         self.assertEqual(tutor.gender, 'Male')
         self.assertEqual(tutor.hourly_rate, Decimal('45.00'))
         self.assertEqual(tutor.available, False)
+
+    def test_add_to_my_tutors(self):
+        student = self.student.student
+        tutor = self.tutor.tutor
+        client = APIClient()
+        client.force_authenticate(user=self.student)
+        response = client.post(reverse('tutor-my-tutors', kwargs={'pk': tutor.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(
+            student.tutors.all(),
+            [
+                '<Tutor: tutor>',
+            ]
+        )
+        response = client.delete(reverse('tutor-my-tutors', kwargs={'pk': tutor.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertQuerysetEqual(
+            student.tutors.all(),
+            []
+        )
