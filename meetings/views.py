@@ -2,6 +2,8 @@ from django.utils import timezone
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import detail_route
+from rest_framework.exceptions import ValidationError
+from rest_framework.response import Response
 
 from accounts.models import User
 
@@ -19,9 +21,13 @@ class MeetingViewSet(ModelViewSet):
     def perform_create(self, serializer):
         data = {}
         if self.request.user.type == User.STUDENT:
+            if not self.request.user.profile.tutors.filter(pk=serializer.validated_data['tutor'].pk).exists():
+                self.permission_denied(self.request, 'Tutor not in My Tutors')
             data['student'] = self.request.user.student
             data['student_accepted_at'] = timezone.now()
         else:
+            if not self.request.user.profile.students.filter(pk=serializer.validated_data['student'].pk).exists():
+                self.permission_denied(self.request, 'Student not in My Students')
             data['tutor'] = self.request.user.tutor
             data['tutor_accepted_at'] = timezone.now()
         serializer.save(**data)
@@ -32,3 +38,23 @@ class MeetingViewSet(ModelViewSet):
         else:
             instance.tutor_cancelled_at = timezone.now()
         instance.save()
+
+    @detail_route(['post'])
+    def accept(self, request, pk):
+        obj = self.get_object()
+        if self.request.user.type == User.STUDENT:
+            obj.student_accepted_at = timezone.now()
+        if self.request.user.type == User.TUTOR:
+            obj.tutor_accepted_at = timezone.now()
+        obj.save()
+        return Response({'status': 'meeting accepted'})
+
+    @detail_route(['post', 'delete'])
+    def cancel(self, request, pk):
+        obj = self.get_object()
+        if self.request.user.type == User.STUDENT:
+            obj.student_cancelled_at = timezone.now() if request.method == 'POST' else None
+        if self.request.user.type == User.TUTOR:
+            obj.tutor_cancelled_at = timezone.now() if request.method == 'POST' else None
+        obj.save()
+        return Response({'status': 'meeting cancelled' if request.method == 'POST' else 'meeting reopened'})

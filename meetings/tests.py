@@ -11,8 +11,6 @@ from .models import Meeting, Review
 class MeetingsTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.new_student = User.objects.create_user('new_student', 'new_student@example.com')
-        cls.new_tutor = User.objects.create_user('new_tutor', 'new_tutor@example.com')
         cls.student = User.objects.create_user('student', 'student@example.com', type=User.STUDENT)
         student = Student.objects.create(
             user=cls.student, date_of_birth=datetime.date(1999, 12, 31), gender='Male',
@@ -25,18 +23,23 @@ class MeetingsTestCase(APITestCase):
             user=cls.tutor, date_of_birth=datetime.date(1999, 12, 31), gender='Female',
             hourly_rate='35.00', available=True,
         )
-        student.tutors.add(tutor)
 
     def test_create_meeting_as_student(self):
+        student = self.student.profile
+        tutor = self.tutor.profile
         data = {
-            'tutor': self.tutor.tutor.id,
-            'student': self.student.student.id,
+            'tutor': tutor.id,
+            'student': student.id,
             'start': '2021-03-05 12:00:00',
             'end': '2021-03-05 13:00:00',
-            'location': self.student.profile.locations.first().pk,
+            'location': student.locations.first().pk,
         }
         client = APIClient()
         client.force_authenticate(user=self.student)
+        response = client.post(reverse('meeting-list'), data=data, format='json')
+        self.assertEqual(response.status_code, 403)
+
+        student.tutors.add(tutor)
         response = client.post(reverse('meeting-list'), data=data, format='json')
         self.assertEqual(response.status_code, 201)
         meeting_pk = response.json()['pk']
@@ -52,3 +55,38 @@ class MeetingsTestCase(APITestCase):
         self.assertEqual(meeting.tutor_id, self.tutor.tutor.pk)
         self.assertIsNone(meeting.tutor_accepted_at)
         self.assertIsNone(meeting.tutor_cancelled_at)
+
+    def test_accept_cancel_meeting(self):
+        student = self.student.profile
+        tutor = self.tutor.profile
+        student.tutors.add(tutor)
+        data = {
+            'tutor': tutor.id,
+            'student': student.id,
+            'start': '2021-03-05 12:00:00',
+            'end': '2021-03-05 13:00:00',
+            'location': student.locations.first().pk,
+        }
+        client = APIClient()
+        client.force_authenticate(user=self.student)
+        response = client.post(reverse('meeting-list'), data=data, format='json')
+        meeting_pk = response.json()['pk']
+        meeting = Meeting.objects.get(pk=meeting_pk)
+
+        self.assertFalse(meeting.is_accepted)
+
+        client.force_authenticate(user=self.tutor)
+        response = client.post(reverse('meeting-accept', kwargs={'pk': meeting_pk}), format='json')
+        self.assertEqual(response.status_code, 200)
+        meeting.refresh_from_db()
+        self.assertTrue(meeting.is_accepted)
+
+        response = client.post(reverse('meeting-cancel', kwargs={'pk': meeting_pk}), format='json')
+        self.assertEqual(response.status_code, 200)
+        meeting.refresh_from_db()
+        self.assertTrue(meeting.is_cancelled)
+
+        response = client.delete(reverse('meeting-cancel', kwargs={'pk': meeting_pk}), format='json')
+        self.assertEqual(response.status_code, 200)
+        meeting.refresh_from_db()
+        self.assertFalse(meeting.is_cancelled)
