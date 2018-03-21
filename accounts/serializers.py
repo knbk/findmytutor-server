@@ -5,10 +5,20 @@ from .models import User, Student, Tutor, Profile, Location
 
 class UserSerializer(serializers.ModelSerializer):
     pk = serializers.HyperlinkedIdentityField(view_name='user-detail')
+    password = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ['pk', 'username', 'email', 'first_name', 'last_name']
+        fields = ['pk', 'username', 'email', 'first_name', 'last_name', 'password']
+
+    def create(self, validated_data):
+        return User.objects.create_user(**validated_data)
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password')
+        if password and not instance.check_password(password):
+            instance.set_password(password)
+        return super().update(instance, validated_data)
 
 
 class LocationSerializer(serializers.ModelSerializer):
