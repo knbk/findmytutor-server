@@ -60,7 +60,7 @@ class MeetingViewSet(ModelViewSet):
         obj.save()
         return Response({'status': 'meeting cancelled' if request.method == 'POST' else 'meeting reopened'})
 
-    @detail_route(['post', 'put', 'delete'], permission_classes=[IsStudent])
+    @detail_route(['post', 'put', 'delete'], permission_classes=[IsStudent], serializer_class=ReviewSerializer)
     def review(self, request, pk):
         meeting = self.get_object()
         if meeting.end >= timezone.now():
