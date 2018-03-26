@@ -69,3 +69,11 @@ class MessagesTestCase(APITestCase):
         self.assertEqual(messages[0]['content'], "Hey, let's plan a first meeting.")
         self.assertEqual(messages[1]['content'], "Sure, when are you available?")
         self.assertEqual(messages[2]['content'], "How about next Wednesday?")
+
+    def test_get_message_threads(self):
+        client = APIClient()
+        client.force_authenticate(self.student)
+        response = client.get(reverse('messagethread-list'))
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(len(data), 1)
