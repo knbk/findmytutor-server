@@ -21,9 +21,9 @@ class MessageThreadViewSet(mixins.RetrieveModelMixin,
 
     def get_queryset(self):
         if self.request.user.type == User.STUDENT:
-            return MessageThread.objects.filter(student=self.request.user.student, tutor_id=self.kwargs['pk'])
+            return MessageThread.objects.filter(student=self.request.user.student)
         else:
-            return MessageThread.objects.filter(tutor=self.request.user.tutor, student_id=self.kwargs['pk'])
+            return MessageThread.objects.filter(tutor=self.request.user.tutor)
 
     def perform_update(self, serializer):
         thread = serializer.instance
