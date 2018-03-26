@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import Meeting, Review
+
+admin.site.register([Meeting, Review])
