@@ -120,6 +120,9 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '336732625130-46sbks5483bsi1e9oohn5jsrs2k2nobs.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'Gq0l8lhM6y_lp2gHsFzpzJxt'
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
