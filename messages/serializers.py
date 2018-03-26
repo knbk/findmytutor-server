@@ -15,5 +15,5 @@ class MessageThreadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MessageThread
-        fields = ['pk', 'content', 'student', 'tutor', 'messages']
+        fields = ['content', 'student', 'tutor', 'messages']
         read_only_fields = ['student', 'tutor']
