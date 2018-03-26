@@ -46,11 +46,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'social_django',
 
     'accounts.apps.AccountsConfig',
     'meetings.apps.MeetingsConfig',
     'messages.apps.MessagesConfig',
 ]
+
+SOCIAL_AUTH_POSTGRES_JSONFIELD = True
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -110,6 +113,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
+]
+
+AUTHENTICATION_BACKENDS = [
+    'social_core.backends.google.GoogleOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 # Internationalization
