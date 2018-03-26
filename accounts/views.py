@@ -5,6 +5,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import detail_route
 from rest_framework.response import Response
 
+from messages.models import MessageThread
 from .models import Location, Student, Tutor, User
 from .permissions import IsOwnerOrReadOnly, IsParentOwnerOrReadOnly
 from .serializers import (LocationSerializer, StudentSerializer,
@@ -47,6 +48,7 @@ class TutorViewSet(ProfileMixin, ModelViewSet):
         tutor = get_object_or_404(Tutor, pk=pk)
         if request.method == "POST":
             request.user.profile.tutors.add(tutor)
+            MessageThread.objects.get_or_create(student=request.user.profile, tutor=tutor)
             return Response({'status': 'tutor added to my tutors'})
         if request.method == "DELETE":
             request.user.profile.tutors.remove(tutor)

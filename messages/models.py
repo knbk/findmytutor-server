@@ -16,7 +16,7 @@ class Message(models.Model):
         (STUDENT, 'Student'),
         (TUTOR, 'Tutor'),
     )
-    thread = models.ForeignKey('messaging.MessageThread', on_delete=models.CASCADE)
+    thread = models.ForeignKey('messaging.MessageThread', on_delete=models.CASCADE, related_name='messages')
     content = models.TextField()
     sent_at = models.DateTimeField(default=timezone.now)
     sent_by = models.CharField(choices=SENT_BY_CHOICES, max_length=20)
