@@ -1,6 +1,7 @@
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db import models
 from django.contrib.gis.db.models.functions import Distance, DistanceField
+from django.contrib.gis.measure import D
 import django_filters as filters
 
 from .models import Tutor, Location
@@ -9,8 +10,8 @@ class TutorFilterSet(filters.FilterSet):
     hourly_rate = filters.NumberFilter(field_name='hourly_rate', lookup_expr='lte')
     subject = filters.CharFilter(method='filter_subject')
     rating = filters.NumberFilter(method='filter_rating')
-    level = filters.ChoiceFilter(Tutor.LEVEL_CHOICES, empty_label=None, method='filter_level')
-    distance = filters.CharFilter(method='filter_distance')
+    level = filters.ChoiceFilter(choices=Tutor.LEVEL_CHOICES, empty_label=None, method='filter_level')
+    location = filters.CharFilter(method='filter_location')
 
     def filter_subject(self, queryset, name, value):
         return queryset.filter(subjects__contains=[value])
@@ -27,23 +28,22 @@ class TutorFilterSet(filters.FilterSet):
             return queryset.filter(level__in=[Tutor.BACHELOR, Tutor.MASTER, Tutor.PHD])
         return queryset
 
-    def filter_distance(self, queryset, name, value):
+    def filter_location(self, queryset, name, value):
         try:
             longitude, latitude = map(float, value.split(',', 1))
         except ValueError:
             return queryset
         point = Point(longitude, latitude, srid=4326)
         return queryset.filter(
-            locations__location__distance_lte=(point, Distance(km=10)),
+            locations__location__distance_lte=(point, D(km=10)),
         ).annotate(
             distance=models.Subquery(
                 Location.objects.filter(tutors__id=models.OuterRef('pk')).annotate(
                     distance=Distance('location', point)
                 ).values('distance').order_by('distance')[:1],
-                output_field=models.DistanceField(),
             ),
         )
 
     class Meta:
         model = Tutor
-        fields = ['hourly_rate', 'subject', 'rating', 'level', 'distance']
+        fields = ['hourly_rate', 'subject', 'rating', 'level', 'location']

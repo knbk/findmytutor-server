@@ -17,9 +17,16 @@ class AccountsTestCase(APITestCase):
             user=cls.student, date_of_birth=datetime.date(1999, 12, 31), gender='Male',
         )
         cls.tutor = User.objects.create_user('tutor', 'tutor@example.com', type=User.TUTOR)
-        Tutor.objects.create(
+        tutor = Tutor.objects.create(
             user=cls.tutor, date_of_birth=datetime.date(1999, 12, 31), gender='Female',
-            hourly_rate='35.00', available=True, level=Tutor.HIGH_SCHOOL, subjects=['App Development'],
+            hourly_rate='35.00', available=True, level=Tutor.MASTER, subjects=['App Development'],
+        )
+        tutor.locations.create(
+            city='Eindhoven',
+            street_address='Juliusstraat 58',
+            zip_code='5621GE',
+            longitude=5.4697225,
+            latitude=51.441642,
         )
 
     def test_root_api_view(self):
@@ -52,7 +59,7 @@ class AccountsTestCase(APITestCase):
         self.assertEqual(tutor['date_of_birth'], '1999-12-31')
         self.assertEqual(tutor['gender'], 'Female')
         self.assertEqual(tutor['students'], [])
-        self.assertEqual(tutor['locations'], [])
+        self.assertEqual(len(tutor['locations']), 1)
 
     def test_create_student(self):
         data = {
@@ -180,3 +187,20 @@ class AccountsTestCase(APITestCase):
             student.tutors.all(),
             []
         )
+
+    def test_filter_tutors(self):
+        data = {
+            'hourly_rate': '45.00',
+            'subject': 'App Development',
+            'level': Tutor.MASTER,
+            'location': "5.459355,51.454387",
+        }
+        response = self.client.get(reverse('tutor-search'), data=data, format='json')
+        self.assertEqual(response.status_code, 200)
+        json = response.json()
+        self.assertEqual(len(json), 1)
+        data['location'] = "4.899651,52.377687"
+        response = self.client.get(reverse('tutor-search'), data=data, format='json')
+        self.assertEqual(response.status_code, 200)
+        json = response.json()
+        self.assertEqual(len(json), 0)

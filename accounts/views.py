@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.db.models import Avg
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import never_cache
 from django.shortcuts import get_object_or_404
@@ -49,11 +50,12 @@ class TutorViewSet(ProfileMixin, ModelViewSet):
     queryset = Tutor.objects.all()
     serializer_class = TutorSerializer
 
-    @list_route
+    @list_route(['get'])
     def search(self, request):
-        qs = Tutor.objects.filter(available=True).annotate(rating=models.Avg('meetings__review__rating'))
+        qs = Tutor.objects.filter(available=True).annotate(rating=Avg('meetings__review__rating'))
         f = TutorFilterSet(request.query_params, queryset=qs)
-        serializer = self.get_serializer()
+        serializer = self.get_serializer(f.qs, many=True)
+        return Response(serializer.data)
 
     @detail_route(['post', 'delete'])
     def my_tutors(self, request, pk):
