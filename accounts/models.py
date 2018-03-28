@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
-from django.db import models
+from django.contrib.gis.db import models
+from django.contrib.gis.geos import Point
 
 
 class User(AbstractUser):
@@ -23,7 +24,7 @@ class User(AbstractUser):
 
 class Profile(models.Model):
     user = models.OneToOneField('accounts.User', on_delete=models.CASCADE, related_name='%(class)s')
-    locations = models.ManyToManyField('accounts.Location', related_name='%(class)s+')
+    locations = models.ManyToManyField('accounts.Location', related_name='%(class)ss')
     date_of_birth = models.DateField(blank=True, null=True)
     gender = models.CharField(max_length=50, blank=True)
 
@@ -69,7 +70,11 @@ class Location(models.Model):
     zip_code = models.CharField(max_length=255)
     latitude = models.FloatField()
     longitude = models.FloatField()
-    # location = models.MultiPolygonField()
+    location = models.PointField(geography=True)
+
+    def save(self, *args, **kwargs):
+        self.location = Point(self.longitude, self.latitude, srid=4326)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.street_address} {self.zip_code} {self.city}"

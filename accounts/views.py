@@ -4,7 +4,7 @@ from django.views.decorators.cache import never_cache
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import detail_route, api_view, permission_classes, renderer_classes
+from rest_framework.decorators import detail_route, api_view, permission_classes, renderer_classes, list_route
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
 from rest_framework.permissions import AllowAny
@@ -17,6 +17,7 @@ from .models import Location, Student, Tutor, User
 from .permissions import IsOwnerOrReadOnly, IsParentOwnerOrReadOnly
 from .serializers import (LocationSerializer, StudentSerializer,
                           TutorSerializer, UserSerializer)
+from .filters import TutorFilterSet
 
 
 class UserViewSet(ModelViewSet):
@@ -47,6 +48,12 @@ class StudentViewSet(ProfileMixin, ModelViewSet):
 class TutorViewSet(ProfileMixin, ModelViewSet):
     queryset = Tutor.objects.all()
     serializer_class = TutorSerializer
+
+    @list_route
+    def search(self, request):
+        qs = Tutor.objects.filter(available=True).annotate(rating=models.Avg('meetings__review__rating'))
+        f = TutorFilterSet(request.query_params, queryset=qs)
+        serializer = self.get_serializer()
 
     @detail_route(['post', 'delete'])
     def my_tutors(self, request, pk):

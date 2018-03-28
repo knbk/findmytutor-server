@@ -53,7 +53,7 @@ class StudentSerializer(serializers.ModelSerializer):
 
 
 class TutorSerializer(serializers.ModelSerializer):
-    pk = serializers.HyperlinkedIdentityField(view_name='tutor-detail')
+    # pk = serializers.HyperlinkedIdentityField(view_name='tutor-detail')
     username = serializers.CharField(source='user.username')
     date_of_birth = serializers.DateField()
     gender = serializers.CharField()
