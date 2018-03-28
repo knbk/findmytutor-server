@@ -1,9 +1,16 @@
 from django.db import transaction
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.cache import never_cache
 from django.shortcuts import get_object_or_404
 from rest_framework.exceptions import ValidationError
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import detail_route, api_view, permission_classes, renderer_classes
 from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
+from rest_framework.permissions import AllowAny
+from rest_framework.authtoken.models import Token
+from social_django.utils import psa
+from social_core.actions import do_complete
 
 from messages.models import MessageThread
 from .models import Location, Student, Tutor, User
@@ -76,3 +83,21 @@ class LocationViewSet(ModelViewSet):
         parent = self.get_parent_object()
         obj = serializer.save()
         parent.locations.add(obj)
+
+
+@never_cache
+@csrf_exempt
+@api_view(['POST'])
+@permission_classes([AllowAny])
+@renderer_classes([JSONRenderer])
+@psa('social:complete')
+def obtain_auth_token(request, backend):
+    response = do_complete(request.backend, _do_login, request.user, redirect_name='next', request=request)
+    if response.status_code != 302:
+        return Response
+    return Response({'key': request.user.auth_token.key})
+
+
+def _do_login(backend, user, social_user):
+    token, created = Token.objects.get_or_create(user=user)
+    backend.strategy.request.user = user
