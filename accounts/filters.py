@@ -46,3 +46,4 @@ class TutorFilterSet(filters.FilterSet):
 
     class Meta:
         model = Tutor
+        fields = ['hourly_rate', 'subject', 'rating', 'level', 'distance']
