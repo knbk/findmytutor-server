@@ -120,9 +120,10 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '336732625130-46sbks5483bsi1e9oohn5jsrs2k2nobs.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '1030472390803-7k696pcjr8m59p20dnnsnhic4fe897sr.apps.googleusercontent.com'
-# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'Gq0l8lhM6y_lp2gHsFzpzJxt'
+# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '1030472390803-7k696pcjr8m59p20dnnsnhic4fe897sr.apps.googleusercontent.com'
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '336732625130-46sbks5483bsi1e9oohn5jsrs2k2nobs.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'Gq0l8lhM6y_lp2gHsFzpzJxt'
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = []
 
 # Internationalization
