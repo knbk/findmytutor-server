@@ -1,4 +1,5 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
 
 
@@ -41,7 +42,21 @@ class Student(Profile):
 
 
 class Tutor(Profile):
+    HIGH_SCHOOL = "HIGH_SCHOOL"
+    BACHELOR = "BACHELOR"
+    MASTER = "MASTER"
+    PHD = "PHD"
+
+    LEVEL_CHOICES = [
+        (HIGH_SCHOOL, "High school"),
+        (BACHELOR, "Bachelor"),
+        (MASTER, "Master"),
+        (PHD, "PhD"),
+    ]
+
     hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    subjects = ArrayField(models.CharField(max_length=100), default=list)
+    level = models.CharField(max_length=100, choices=LEVEL_CHOICES)
     available = models.BooleanField(blank=True, default=True)
 
     def __str__(self):

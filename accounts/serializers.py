@@ -64,7 +64,7 @@ class TutorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tutor
-        fields = ['pk', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'available', 'students', 'locations']
+        fields = ['pk', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'subjects', 'level', 'available', 'students', 'locations']
 
     def create(self, validated_data):
         user = validated_data['user']

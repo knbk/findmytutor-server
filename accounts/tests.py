@@ -19,7 +19,7 @@ class AccountsTestCase(APITestCase):
         cls.tutor = User.objects.create_user('tutor', 'tutor@example.com', type=User.TUTOR)
         Tutor.objects.create(
             user=cls.tutor, date_of_birth=datetime.date(1999, 12, 31), gender='Female',
-            hourly_rate='35.00', available=True,
+            hourly_rate='35.00', available=True, level=Tutor.HIGH_SCHOOL, subjects=['App Development'],
         )
 
     def test_root_api_view(self):
@@ -99,6 +99,11 @@ class AccountsTestCase(APITestCase):
             'date_of_birth': '1999-12-31',
             'gender': 'Male',
             'hourly_rate': '35.00',
+            'level': Tutor.MASTER,
+            'subjects': [
+                'App Development',
+                'Applied Physics',
+            ],
             'available': 'false',
         }
         client = APIClient()
@@ -116,6 +121,11 @@ class AccountsTestCase(APITestCase):
         self.assertEqual(tutor.date_of_birth, datetime.date(1999, 12, 31))
         self.assertEqual(tutor.gender, 'Male')
         self.assertEqual(tutor.hourly_rate, Decimal('35.00'))
+        self.assertEqual(tutor.level, Tutor.MASTER)
+        self.assertListEqual(tutor.subjects, [
+            'App Development',
+            'Applied Physics',
+        ])
         self.assertFalse(tutor.available)
 
     def test_update_tutor(self):
@@ -127,6 +137,11 @@ class AccountsTestCase(APITestCase):
             'gender': 'Male',
             'hourly_rate': '45.00',
             'available': 'false',
+            'level': Tutor.BACHELOR,
+            'subjects': [
+                'App Development',
+                'Applied Physics',
+            ],
         }
         client = APIClient()
         client.force_authenticate(user=self.tutor)
@@ -139,6 +154,11 @@ class AccountsTestCase(APITestCase):
         self.assertEqual(tutor.date_of_birth, datetime.date(1994, 12, 31))
         self.assertEqual(tutor.gender, 'Male')
         self.assertEqual(tutor.hourly_rate, Decimal('45.00'))
+        self.assertEqual(tutor.level, Tutor.BACHELOR)
+        self.assertListEqual(tutor.subjects, [
+            'App Development',
+            'Applied Physics',
+        ])
         self.assertEqual(tutor.available, False)
 
     def test_add_to_my_tutors(self):
