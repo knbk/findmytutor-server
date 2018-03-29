@@ -22,4 +22,5 @@ tutor_location_router.register(r'locations', LocationViewSet, base_name='tutor-l
 urlpatterns = router.urls + student_location_router.urls + tutor_location_router.urls
 urlpatterns += [
     path('token/', obtain_auth_token, kwargs={'backend': 'google-oauth2'}, name='obtain-token'),
+    path('500/', lambda request: raise Exception()),
 ]
