@@ -204,3 +204,12 @@ class AccountsTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         json = response.json()
         self.assertEqual(len(json), 0)
+
+    def test_get_profile(self):
+        client = APIClient()
+        client.force_authenticate(user=self.student)
+        response = client.get(reverse('user-profile'))
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertEqual(data['username'], 'student')
+        self.assertEqual(data['type'], 'student')

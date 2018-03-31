@@ -21,3 +21,8 @@ class IsParentOwnerOrReadOnly(permissions.BasePermission):
 class IsStudent(permissions.IsAuthenticated):
     def has_object_permission(self, request, view, obj):
         return request.user.is_authenticated and request.user.type == User.STUDENT
+
+
+class IsStudentOrTutor(permissions.IsAuthenticated):
+    def has_object_permission(self, request, view, obj):
+        return request.user.is_authenticated and request.user.type in [User.STUDENT, User.TUTOR]

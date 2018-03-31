@@ -15,7 +15,7 @@ from social_core.actions import do_complete
 
 from messages.models import MessageThread
 from .models import Location, Student, Tutor, User
-from .permissions import IsOwnerOrReadOnly, IsParentOwnerOrReadOnly
+from .permissions import IsOwnerOrReadOnly, IsParentOwnerOrReadOnly, IsStudentOrTutor
 from .serializers import (LocationSerializer, StudentSerializer,
                           TutorSerializer, UserSerializer)
 from .filters import TutorFilterSet
@@ -24,6 +24,15 @@ from .filters import TutorFilterSet
 class UserViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    @list_route(["GET"])
+    @permission_classes([IsStudentOrTutor])
+    def profile(self, request):
+        serializer_class = StudentSerializer if request.user.type == User.STUDENT else TutorSerializer
+        serializer = serializer_class(request.user.profile, context={'request': request})
+        data = serializer.data
+        data['type'] = request.user.type
+        return Response(data)
 
 
 class ProfileMixin:
@@ -103,7 +112,7 @@ class LocationViewSet(ModelViewSet):
 def obtain_auth_token(request, backend):
     response = do_complete(request.backend, _do_login, request.user, redirect_name='next', request=request)
     if response.status_code != 302:
-        return Response
+        return response
     return Response({'key': request.user.auth_token.key})
 
 
