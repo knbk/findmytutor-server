@@ -53,11 +53,13 @@ class ProfileMixin:
 class StudentViewSet(ProfileMixin, ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
+    permission_classes = [IsOwnerOrReadOnly]
 
 
 class TutorViewSet(ProfileMixin, ModelViewSet):
     queryset = Tutor.objects.all()
     serializer_class = TutorSerializer
+    permission_classes = [IsOwnerOrReadOnly]
 
     @list_route(['get'])
     def search(self, request):
