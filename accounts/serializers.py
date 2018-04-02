@@ -27,12 +27,25 @@ class LocationSerializer(serializers.ModelSerializer):
         fields = ['pk', 'city', 'street_address', 'zip_code', 'latitude', 'longitude']
 
 
+class NestedTutorSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+    date_of_birth = serializers.DateField()
+    gender = serializers.CharField()
+    hourly_rate = serializers.DecimalField(10, 2)
+    available = serializers.BooleanField()
+    locations = LocationSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Tutor
+        fields = ['pk', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'subjects', 'level', 'available', 'locations']
+
+
 class StudentSerializer(serializers.ModelSerializer):
     # pk = serializers.HyperlinkedIdentityField(view_name='student-detail')
     username = serializers.CharField(source='user.username')
     date_of_birth = serializers.DateField()
     gender = serializers.CharField()
-    tutors = serializers.StringRelatedField(many=True, read_only=True)
+    tutors = NestedTutorSerializer(many=True, read_only=True)
     locations = LocationSerializer(many=True, read_only=True)
 
     class Meta:
