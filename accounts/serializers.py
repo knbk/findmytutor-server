@@ -65,6 +65,16 @@ class StudentSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
+class NestedStudentSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(source='user.username')
+    date_of_birth = serializers.DateField()
+    gender = serializers.CharField()
+    locations = LocationSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Student
+        fields = ['pk', 'username', 'date_of_birth', 'gender', 'locations']
+
 class TutorSerializer(serializers.ModelSerializer):
     # pk = serializers.HyperlinkedIdentityField(view_name='tutor-detail')
     username = serializers.CharField(source='user.username')
@@ -72,7 +82,7 @@ class TutorSerializer(serializers.ModelSerializer):
     gender = serializers.CharField()
     hourly_rate = serializers.DecimalField(10, 2)
     available = serializers.BooleanField()
-    students = serializers.StringRelatedField(many=True, read_only=True)
+    students = NestedStudentSerializer(many=True, read_only=True)
     locations = LocationSerializer(many=True, read_only=True)
 
     class Meta:
