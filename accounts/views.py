@@ -8,7 +8,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.decorators import detail_route, api_view, permission_classes, renderer_classes, list_route
 from rest_framework.response import Response
 from rest_framework.renderers import JSONRenderer
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from social_django.utils import psa
 from social_core.actions import do_complete
@@ -26,8 +26,10 @@ class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
 
     @list_route(["GET"])
-    @permission_classes([IsStudentOrTutor])
+    @permission_classes([IsAuthenticated])
     def profile(self, request):
+        if not request.user.type:
+            return Response({}, status=404)
         serializer_class = StudentSerializer if request.user.type == User.STUDENT else TutorSerializer
         serializer = serializer_class(request.user.profile, context={'request': request})
         data = serializer.data
