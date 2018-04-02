@@ -65,9 +65,8 @@ class Tutor(Profile):
 
 
 class Location(models.Model):
-    city = models.CharField(max_length=255)
-    street_address = models.CharField(max_length=255)
-    zip_code = models.CharField(max_length=255)
+    address = models.CharField(max_length=255)
+    google_id = models.CharField(max_length=255)
     latitude = models.FloatField()
     longitude = models.FloatField()
     location = models.PointField(geography=True)
@@ -77,4 +76,4 @@ class Location(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.street_address} {self.zip_code} {self.city}"
+        return f"{self.address}"

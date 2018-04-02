@@ -24,7 +24,7 @@ class UserSerializer(serializers.ModelSerializer):
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
-        fields = ['pk', 'city', 'street_address', 'zip_code', 'latitude', 'longitude']
+        fields = ['pk', 'address', 'google_id', 'latitude', 'longitude']
 
 
 class NestedTutorSerializer(serializers.ModelSerializer):
