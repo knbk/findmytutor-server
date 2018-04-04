@@ -109,7 +109,7 @@ class LocationViewSet(ModelViewSet):
 
 @never_cache
 @csrf_exempt
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
 @permission_classes([AllowAny])
 @renderer_classes([JSONRenderer])
 @psa('social:complete')
