@@ -17,9 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from accounts.urls import get_token
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('accounts.urls')),
+    path('auth/token/', get_token, name='get-token'),
     path('auth/', include('social_django.urls', namespace='social')),
     path('auth/', include('rest_framework.urls')),
 ]

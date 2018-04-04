@@ -107,6 +107,13 @@ class LocationViewSet(ModelViewSet):
         parent.locations.add(obj)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_token(request):
+    token, created = Token.objects.get_or_create(user=request.user)
+    return Response({'key': request.user.auth_token.key})
+
+
 @never_cache
 @csrf_exempt
 @api_view(['GET', 'POST'])
