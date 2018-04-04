@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.db.models import Q
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import detail_route
@@ -22,6 +23,12 @@ class MeetingViewSet(ModelViewSet):
             qs = qs.filter(end__lte=timezone.now())
         elif 'future' in self.request.query_params:
             qs = qs.filter(end__gte=timezone.now())
+        elif 'requests' in self.request.query_params:
+            qs = qs.filter(end__gte=timezone.now())
+            qs = qs.filter(**{
+                '%s_accepted_at' % self.request.user.type: None,
+                '%s_cancelled_at' % self.request.user.type: None,
+            })
         return qs
 
     def perform_create(self, serializer):
