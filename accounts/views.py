@@ -48,6 +48,9 @@ class ProfileMixin:
 
     @transaction.atomic()
     def perform_destroy(self, instance):
+        user = instance.user
+        user.type = ''
+        user.save(update_fields['type'])
         instance.locations.all().delete()
         instance.delete()
 
