@@ -17,7 +17,12 @@ class MeetingViewSet(ModelViewSet):
     serializer_class = MeetingSerializer
 
     def get_queryset(self):
-        return self.request.user.profile.meetings.all()
+        qs = self.request.user.profile.meetings.all()
+        if 'past' in self.request.query_params:
+            qs = qs.filter(end__lte=timezone.now())
+        elif 'future' in self.request.query_params:
+            qs = qs.filter(end__gte=timezone.now())
+        return qs
 
     def perform_create(self, serializer):
         data = {}
