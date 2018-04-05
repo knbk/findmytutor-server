@@ -55,7 +55,7 @@ class StudentSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = validated_data['user']
         user.type = User.STUDENT
-        user.save(update_fields=['type'])
+        user.save(update_fields=['type', 'username'])
         return super().create(validated_data)
 
     def update(self, instance, validated_data):

@@ -44,7 +44,9 @@ class ProfileMixin:
     def perform_create(self, serializer):
         if self.request.user.type:
             raise ValidationError('Profile already exists.')
-        serializer.save(user=self.request.user)
+        user = self.request.user
+        user.username = serializer.validated_data['user']['username']
+        serializer.save(user=user)
 
     @transaction.atomic()
     def perform_destroy(self, instance):
