@@ -46,23 +46,32 @@ class StudentSerializer(serializers.ModelSerializer):
     date_of_birth = serializers.DateField()
     gender = serializers.CharField()
     tutors = NestedTutorSerializer(many=True, read_only=True)
-    locations = LocationSerializer(many=True, read_only=True)
+    locations = LocationSerializer(many=True)
 
     class Meta:
         model = Student
         fields = ['pk', 'username', 'date_of_birth', 'gender', 'tutors', 'locations']
 
     def create(self, validated_data):
+        locations = validated_data.pop('locations')
         user = validated_data['user']
         user.type = User.STUDENT
         user.save(update_fields=['type', 'username'])
-        return super().create(validated_data)
+        obj = super().create(validated_data)
+        for location in locations:
+            obj.locations.create(**location)
+        return obj
 
     def update(self, instance, validated_data):
+        locations = validated_data.pop('locations')
         user = instance.user
         user.username = validated_data.pop('user')['username']
         user.save(update_fields=['username'])
-        return super().update(instance, validated_data)
+        obj = super().update(instance, validated_data)
+        obj.locations.all().delete()
+        for location in locations:
+            obj.locations.create(**location)
+        return obj
 
 
 class NestedStudentSerializer(serializers.ModelSerializer):
@@ -83,20 +92,29 @@ class TutorSerializer(serializers.ModelSerializer):
     hourly_rate = serializers.DecimalField(10, 2)
     available = serializers.BooleanField()
     students = NestedStudentSerializer(many=True, read_only=True)
-    locations = LocationSerializer(many=True, read_only=True)
+    locations = LocationSerializer(many=True)
 
     class Meta:
         model = Tutor
         fields = ['pk', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'subjects', 'level', 'available', 'students', 'locations']
 
     def create(self, validated_data):
+        locations = validated_data.pop('locations')
         user = validated_data['user']
         user.type = User.TUTOR
         user.save(update_fields=['type'])
-        return super().create(validated_data)
+        obj = super().create(validated_data)
+        for location in locations:
+            obj.locations.create(**location)
+        return obj
 
     def update(self, instance, validated_data):
+        locations = validated_data.pop('locations')
         user = instance.user
         user.username = validated_data.pop('user')['username']
         user.save(update_fields=['username'])
-        return super().update(instance, validated_data)
+        obj = super().update(instance, validated_data)
+        obj.locations.all().delete()
+        for location in locations:
+            obj.locations.create(**location)
+        return obj
