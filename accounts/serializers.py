@@ -112,7 +112,7 @@ class TutorSerializer(serializers.ModelSerializer):
         locations = validated_data.pop('locations')
         user = validated_data['user']
         user.type = User.TUTOR
-        user.save(update_fields=['type'])
+        user.save(update_fields=['type', 'username'])
         obj = super().create(validated_data)
         for location in locations:
             obj.locations.create(**location)
