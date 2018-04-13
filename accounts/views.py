@@ -1,5 +1,5 @@
 from django.db import transaction
-from django.db.models import Avg, V
+from django.db.models import Avg, Value as V
 from django.db.models.functions import Coalesce
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import never_cache
