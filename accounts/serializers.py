@@ -34,10 +34,11 @@ class NestedTutorSerializer(serializers.ModelSerializer):
     hourly_rate = serializers.DecimalField(10, 2)
     available = serializers.BooleanField()
     locations = LocationSerializer(many=True, read_only=True)
+    rating = serializers.FloatField(read_only=True)
 
     class Meta:
         model = Tutor
-        fields = ['pk', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'subjects', 'available', 'locations']
+        fields = ['pk', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'subjects', 'available', 'locations', 'rating']
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -97,10 +98,11 @@ class TutorSerializer(serializers.ModelSerializer):
         child=serializers.DictField(child=serializers.CharField()),
         source='subject_dicts',
     )
+    rating = serializers.FloatField(read_only=True)
 
     class Meta:
         model = Tutor
-        fields = ['pk', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'subjects', 'available', 'students', 'locations']
+        fields = ['pk', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'subjects', 'available', 'students', 'locations', 'rating']
 
     def create(self, validated_data):
         locations = validated_data.pop('locations')

@@ -63,7 +63,7 @@ class StudentViewSet(ProfileMixin, ModelViewSet):
 
 
 class TutorViewSet(ProfileMixin, ModelViewSet):
-    queryset = Tutor.objects.all()
+    queryset = Tutor.objects.annotate(rating=Avg('meetings__review__rating'))
     serializer_class = TutorSerializer
     permission_classes = [IsOwnerOrReadOnly]
 
