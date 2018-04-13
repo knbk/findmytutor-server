@@ -1,5 +1,7 @@
 from django.db import models
 
+from accounts.models import User
+
 
 class Meeting(models.Model):
     tutor = models.ForeignKey('accounts.Tutor', on_delete=models.CASCADE, related_name='meetings')
@@ -21,6 +23,14 @@ class Meeting(models.Model):
     @property
     def is_cancelled(self):
         return self.tutor_cancelled_at is not None or self.student_cancelled_at is not None
+
+    @property
+    def created_by(self):
+        if self.tutor_accepted_at is None:
+            return User.STUDENT
+        if self.student_accepted_at is None:
+            return User.TUTOR
+        return User.STUDENT if self.student_accepted_at < self.tutor_accepted_at else User.TUTOR
 
 
 class Review(models.Model):

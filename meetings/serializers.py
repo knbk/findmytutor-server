@@ -17,6 +17,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 class MeetingSerializer(serializers.ModelSerializer):
     is_accepted = serializers.BooleanField(read_only=True)
     is_cancelled = serializers.BooleanField(read_only=True)
+    created_by = serializers.CharField(read_only=True)
     review = ReviewSerializer(read_only=True)
     location = LocationSerializer()
 
@@ -27,7 +28,7 @@ class MeetingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Meeting
-        fields = ['pk', 'tutor', 'student', 'start', 'end', 'location', 'is_accepted', 'is_cancelled', 'review']
+        fields = ['pk', 'tutor', 'student', 'start', 'end', 'location', 'is_accepted', 'is_cancelled', 'created_by', 'review']
 
     @atomic()
     def create(self, validated_data):
