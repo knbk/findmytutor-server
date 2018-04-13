@@ -29,7 +29,7 @@ class LocationSerializer(serializers.ModelSerializer):
 
 class NestedTutorSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username')
-    date_of_birth = serializers.DateTimeField()
+    date_of_birth = serializers.DateTimeField(source='date_of_birth_datetime')
     gender = serializers.CharField()
     hourly_rate = serializers.DecimalField(10, 2)
     available = serializers.BooleanField()
@@ -43,7 +43,7 @@ class NestedTutorSerializer(serializers.ModelSerializer):
 class StudentSerializer(serializers.ModelSerializer):
     # pk = serializers.HyperlinkedIdentityField(view_name='student-detail')
     username = serializers.CharField(source='user.username')
-    date_of_birth = serializers.DateTimeField()
+    date_of_birth = serializers.DateTimeField(source='date_of_birth_datetime')
     gender = serializers.CharField()
     tutors = NestedTutorSerializer(many=True, read_only=True)
     locations = LocationSerializer(many=True)
@@ -76,7 +76,7 @@ class StudentSerializer(serializers.ModelSerializer):
 
 class NestedStudentSerializer(serializers.ModelSerializer):
     username = serializers.CharField(source='user.username')
-    date_of_birth = serializers.DateTimeField()
+    date_of_birth = serializers.DateTimeField(source='date_of_birth_datetime')
     gender = serializers.CharField()
     locations = LocationSerializer(many=True, read_only=True)
 
@@ -87,7 +87,7 @@ class NestedStudentSerializer(serializers.ModelSerializer):
 class TutorSerializer(serializers.ModelSerializer):
     # pk = serializers.HyperlinkedIdentityField(view_name='tutor-detail')
     username = serializers.CharField(source='user.username')
-    date_of_birth = serializers.DateTimeField()
+    date_of_birth = serializers.DateTimeField(source='date_of_birth_datetime')
     gender = serializers.CharField()
     hourly_rate = serializers.DecimalField(10, 2)
     available = serializers.BooleanField()

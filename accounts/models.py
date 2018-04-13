@@ -1,3 +1,5 @@
+import datetime
+
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.gis.db import models
@@ -27,6 +29,14 @@ class Profile(models.Model):
     locations = models.ManyToManyField('accounts.Location', related_name='%(class)ss')
     date_of_birth = models.DateField(blank=True, null=True)
     gender = models.CharField(max_length=50, blank=True)
+
+    @property
+    def date_of_birth_datetime(self):
+        return datetime.combine(self.date_of_birth, datetime.min.time())
+
+    @date_of_birth_datetime.setter
+    def date_of_birth_datetime(self, date_of_birth):
+        self.date_of_birth = date_of_birth.date()
 
     class Meta:
         abstract = True
