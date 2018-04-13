@@ -27,6 +27,7 @@ class MeetingViewSet(ModelViewSet):
                 '%s_accepted_at' % self.request.user.type: None,
                 '%s_cancelled_at' % self.request.user.type: None,
             })
+            qs = qs.filter(tutor_cancelled_at=None, student_cancelled_at=None)
         elif 'requests' in self.request.query_params:
             qs = qs.filter(end__gte=timezone.now())
             qs = qs.filter(**{
