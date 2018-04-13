@@ -11,7 +11,7 @@ from .models import Meeting, Review
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = ['pk', 'rating', 'review']
+        fields = ['rating', 'review']
 
 
 class MeetingSerializer(serializers.ModelSerializer):

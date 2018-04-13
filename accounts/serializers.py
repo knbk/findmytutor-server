@@ -89,6 +89,7 @@ class NestedStudentSerializer(serializers.ModelSerializer):
         model = Student
         fields = ['pk', 'username', 'date_of_birth', 'gender', 'locations']
 
+
 class TutorSerializer(serializers.ModelSerializer):
     # pk = serializers.HyperlinkedIdentityField(view_name='tutor-detail')
     username = serializers.CharField(source='user.username')
