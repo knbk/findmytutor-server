@@ -32,7 +32,7 @@ class Profile(models.Model):
 
     @property
     def date_of_birth_datetime(self):
-        return datetime.combine(self.date_of_birth, datetime.min.time())
+        return datetime.datetime.combine(self.date_of_birth, datetime.min.time())
 
     @date_of_birth_datetime.setter
     def date_of_birth_datetime(self, date_of_birth):
