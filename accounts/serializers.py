@@ -93,10 +93,14 @@ class TutorSerializer(serializers.ModelSerializer):
     available = serializers.BooleanField()
     students = NestedStudentSerializer(many=True, read_only=True)
     locations = LocationSerializer(many=True)
+    subjects = serializers.ListField(
+        child=serializers.DictField(child=serializers.CharField()),
+        source='subject_dicts',
+    )
 
     class Meta:
         model = Tutor
-        fields = ['pk', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'subjects', 'level', 'available', 'students', 'locations']
+        fields = ['pk', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'subjects', 'available', 'students', 'locations']
 
     def create(self, validated_data):
         locations = validated_data.pop('locations')

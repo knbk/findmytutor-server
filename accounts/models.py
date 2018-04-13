@@ -56,9 +56,29 @@ class Tutor(Profile):
     ]
 
     hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    subjects = ArrayField(models.CharField(max_length=100), default=list)
-    level = models.CharField(max_length=100, choices=LEVEL_CHOICES)
+    subjects = ArrayField(
+        ArrayField(
+            models.CharField(max_length=100),
+            size=2,
+            default=list,
+        ),
+        default=list,
+    )
     available = models.BooleanField(blank=True, default=True)
+
+    @property
+    def subject_dicts(self):
+        return list(map(
+            lambda subject: {'subject': subject[0], 'level': subject[1]},
+            self.subjects,
+        ))
+
+    @subject_dicts.setter
+    def subject_dicts(self, subject_dicts):
+        self.subjects = list(map(
+            lambda subject: [subject['subject'], subject['level']],
+            subject_dicts,
+        ))
 
     def __str__(self):
         return f"{self.user}"
