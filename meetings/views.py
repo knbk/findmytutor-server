@@ -20,9 +20,13 @@ class MeetingViewSet(ModelViewSet):
     def get_queryset(self):
         qs = self.request.user.profile.meetings.all()
         if 'past' in self.request.query_params:
-            qs = qs.filter(end__lte=timezone.now())
+            qs = qs.filter(end__lt=timezone.now())
         elif 'future' in self.request.query_params:
             qs = qs.filter(end__gte=timezone.now())
+            qs = qs.filter(
+                Q(**{'%s_accepted_at' % self.request.user.type: None})
+                | Q(**{'%s_cancelled_at' % self.request.user.type: None})
+            )
         elif 'requests' in self.request.query_params:
             qs = qs.filter(end__gte=timezone.now())
             qs = qs.filter(**{
