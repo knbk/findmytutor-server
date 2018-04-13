@@ -35,6 +35,10 @@ class NestedTutorSerializer(serializers.ModelSerializer):
     available = serializers.BooleanField()
     locations = LocationSerializer(many=True, read_only=True)
     rating = serializers.FloatField(read_only=True)
+    subjects = serializers.ListField(
+        child=serializers.DictField(child=serializers.CharField()),
+        source='subject_dicts',
+    )
 
     class Meta:
         model = Tutor
