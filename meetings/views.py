@@ -86,7 +86,7 @@ class MeetingViewSet(ModelViewSet):
             serializer = ReviewSerializer(instance=review, data=request.data)
             if serializer.is_valid():
                 serializer.save(meeting=meeting)
-                return Response({'status': 'review saved'}, status=201 if request.method == 'POST' else 200)
+                return Response(serializer.data, status=201 if request.method == 'POST' else 200)
             return Response(serializer.errors, status=400)
         if request.method == 'DELETE':
             review = getattr(meeting, 'review', None)

@@ -32,7 +32,7 @@ class MeetingSerializer(serializers.ModelSerializer):
     @atomic()
     def create(self, validated_data):
         validated_data['location'] = Location.objects.create(**validated_data.pop('location'))
-        return super().perform_create(validated_data)
+        return super().create(validated_data)
 
     @atomic()
     def update(self, instance, validated_data):
