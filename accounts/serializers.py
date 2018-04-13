@@ -37,7 +37,7 @@ class NestedTutorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tutor
-        fields = ['pk', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'subjects', 'level', 'available', 'locations']
+        fields = ['pk', 'username', 'date_of_birth', 'gender', 'hourly_rate', 'subjects', 'available', 'locations']
 
 
 class StudentSerializer(serializers.ModelSerializer):
