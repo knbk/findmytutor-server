@@ -1,5 +1,6 @@
 from django.db import transaction
-from django.db.models import Avg
+from django.db.models import Avg, V
+from django.db.models.functions import Coalesce
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import never_cache
 from django.shortcuts import get_object_or_404
@@ -63,13 +64,13 @@ class StudentViewSet(ProfileMixin, ModelViewSet):
 
 
 class TutorViewSet(ProfileMixin, ModelViewSet):
-    queryset = Tutor.objects.annotate(rating=Avg('meetings__review__rating'))
+    queryset = Tutor.objects.annotate(rating=Coalesce(Avg('meetings__review__rating'), Value(0.0)))
     serializer_class = TutorSerializer
     permission_classes = [IsOwnerOrReadOnly]
 
     @list_route(['get'])
     def search(self, request):
-        qs = Tutor.objects.filter(available=True).annotate(rating=Avg('meetings__review__rating'))
+        qs = Tutor.objects.filter(available=True).annotate(rating=Coalesce(Avg('meetings__review__rating'), V(0)))
         f = TutorFilterSet(request.query_params, queryset=qs)
         serializer = self.get_serializer(f.qs, many=True)
         return Response(serializer.data)
