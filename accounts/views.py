@@ -70,7 +70,7 @@ class ProfileMixin:
             if serializer.is_valid():
                 serializer.save()
                 return Response({'status': 'upload successful'})
-            return Response({'status': 'upload not successful'}, status=400)
+            return Response(serializer.errors, status=400)
         else:  # DELETE
             obj.delete()
             if created:
