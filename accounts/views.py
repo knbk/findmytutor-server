@@ -57,8 +57,9 @@ class ProfileMixin:
 
     @detail_route(['get', 'post', 'put', 'delete'])
     @permission_classes([IsOwnerOrReadOnly])
+    @transaction.atomic()
     def picture(self, request, pk):
-        obj = ProfilePicture.objects.get_or_create(user_id=pk)
+        obj, created = ProfilePicture.objects.get_or_create(user_id=pk)
         if request.method == 'GET':
             if not obj.image:
                 raise Http404()
@@ -71,6 +72,8 @@ class ProfileMixin:
             return Response({'status': 'upload not successful'}, status=400)
         else:  # DELETE
             obj.delete()
+            if created:
+                raise Http404()
             return Response({'status': 'picture deleted'})
 
     permission_classes = [IsOwnerOrReadOnly]
