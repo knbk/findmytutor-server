@@ -34,10 +34,12 @@ class ProfilePictureSerializer(serializers.ModelSerializer):
         image, _ = ProfilePicture.objects.get_or_create(user=self.context['request'].user)
         image.image = validated_data['image'].read()
         image.save()
+        return image
 
     def update(self, instance, validated_data):
         instance.image = validated_data['image'].read()
         instance.save()
+        return instance
 
     class Meta:
         model = ProfilePicture
