@@ -19,7 +19,7 @@ from messages.models import MessageThread
 from .models import Location, Student, Tutor, User, ProfilePicture
 from .permissions import IsOwnerOrReadOnly, IsParentOwnerOrReadOnly, IsStudentOrTutor
 from .serializers import (LocationSerializer, StudentSerializer,
-                          TutorSerializer, UserSerializer)
+                          TutorSerializer, UserSerializer, ProfilePictureSerializer)
 from .filters import TutorFilterSet
 
 
