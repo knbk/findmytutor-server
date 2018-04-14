@@ -17,6 +17,7 @@ djangorestframework = "*"
 drf-nested-routers = "*"
 social-auth-app-django = "*"
 django-filter = "*"
+pillow = "*"
 
 [dev-packages]
 bpython = "*"

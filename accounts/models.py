@@ -24,6 +24,11 @@ class User(AbstractUser):
         return None
 
 
+class ProfilePicture(models.Model):
+    user = models.OneToOneField('accounts.User', on_delete=models.CASCADE, related_name='picture')
+    image = models.BinaryField()
+
+
 class Profile(models.Model):
     user = models.OneToOneField('accounts.User', on_delete=models.CASCADE, related_name='%(class)s')
     locations = models.ManyToManyField('accounts.Location', related_name='%(class)ss')

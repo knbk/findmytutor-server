@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import User, Student, Tutor, Profile, Location
+from .models import User, Student, Tutor, Profile, Location, ProfilePicture
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -25,6 +25,14 @@ class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = ['pk', 'address', 'google_id', 'latitude', 'longitude']
+
+
+class ProfilePictureSerializer(serializers.ModelSerializer):
+    image = serializers.ImageField()
+
+    class Meta:
+        model = ProfilePicture
+        fields = ['image']
 
 
 class NestedTutorSerializer(serializers.ModelSerializer):

@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.db.models import Avg, Value as V
 from django.db.models.functions import Coalesce
+from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.cache import never_cache
 from django.shortcuts import get_object_or_404
@@ -15,7 +16,7 @@ from social_django.utils import psa
 from social_core.actions import do_complete
 
 from messages.models import MessageThread
-from .models import Location, Student, Tutor, User
+from .models import Location, Student, Tutor, User, ProfilePicture
 from .permissions import IsOwnerOrReadOnly, IsParentOwnerOrReadOnly, IsStudentOrTutor
 from .serializers import (LocationSerializer, StudentSerializer,
                           TutorSerializer, UserSerializer)
@@ -39,8 +40,6 @@ class UserViewSet(ModelViewSet):
 
 
 class ProfileMixin:
-    permission_classes = [IsOwnerOrReadOnly]
-
     @transaction.atomic()
     def perform_create(self, serializer):
         if self.request.user.type:
@@ -55,6 +54,26 @@ class ProfileMixin:
         user.type = ''
         user.save(update_fields=['type'])
         instance.delete()
+
+    @detail_route(['get', 'post', 'put', 'delete'])
+    @permission_classes([IsOwnerOrReadOnly])
+    def picture(self, request, pk):
+        obj = ProfilePicture.objects.get_or_create(user_id=pk)
+        if request.method == 'GET':
+            if not obj.image:
+                raise Http404()
+            return HttpResponse(obj.image)
+        elif request.method in ['POST', 'PUT']:
+            serializer = ProfilePictureSerializer(obj, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'status': 'upload successful'})
+            return Response({'status': 'upload not successful'}, status=400)
+        else:  # DELETE
+            obj.delete()
+            return Response({'status': 'picture deleted'})
+
+    permission_classes = [IsOwnerOrReadOnly]
 
 
 class StudentViewSet(ProfileMixin, ModelViewSet):
