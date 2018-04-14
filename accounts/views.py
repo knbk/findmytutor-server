@@ -76,7 +76,9 @@ class ProfileMixin:
         if request.method == 'GET':
             if not obj.image:
                 raise Http404()
-            return HttpResponse(obj.image)
+            response = HttpResponse(obj.image)
+            response['Content-Type'] = 'image/png'
+            return response
         elif request.method in ['POST', 'PUT']:
             print(request.body)
             print(request.data)
