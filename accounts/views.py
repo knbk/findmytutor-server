@@ -59,7 +59,8 @@ class ProfileMixin:
     @permission_classes([IsOwnerOrReadOnly])
     @transaction.atomic()
     def picture(self, request, pk):
-        obj, created = ProfilePicture.objects.get_or_create(user_id=pk)
+        user = self.get_queryset().get(pk=pk).user
+        obj, created = ProfilePicture.objects.get_or_create(user=user)
         if request.method == 'GET':
             if not obj.image:
                 raise Http404()
