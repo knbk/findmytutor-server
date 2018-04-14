@@ -66,6 +66,7 @@ class ProfileMixin:
                 raise Http404()
             return HttpResponse(obj.image)
         elif request.method in ['POST', 'PUT']:
+            print(request.data['image'])
             serializer = ProfilePictureSerializer(obj, data=request.data)
             if serializer.is_valid():
                 serializer.save()
