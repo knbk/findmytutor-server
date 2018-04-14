@@ -46,8 +46,8 @@ class ProfilePictureViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         print(request.META)
-        print(request.data)
         print(request.body)
+        print(request.data)
         return super().create(request, *args, **kwargs)
 
     @transaction.atomic()
