@@ -52,8 +52,6 @@ class ProfilePictureViewSet(ModelViewSet):
 
 
 class ProfileMixin:
-    permission_classes = [IsOwnerOrReadOnly]
-
     @transaction.atomic()
     def perform_create(self, serializer):
         if self.request.user.type:
@@ -69,6 +67,32 @@ class ProfileMixin:
         user.save(update_fields=['type'])
         instance.delete()
 
+    @detail_route(['get', 'post', 'put', 'delete'])
+    @permission_classes([IsOwnerOrReadOnly])
+    @transaction.atomic()
+    def picture(self, request, pk):
+        user = self.get_queryset().get(pk=pk).user
+        obj, created = ProfilePicture.objects.get_or_create(user=user)
+        if request.method == 'GET':
+            if not obj.image:
+                raise Http404()
+            return HttpResponse(obj.image)
+        elif request.method in ['POST', 'PUT']:
+            print(request.body)
+            print(request.data)
+            print(request.parsers)
+            serializer = ProfilePictureSerializer(obj, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'status': 'upload successful'})
+            return Response(serializer.errors, status=400)
+        else:  # DELETE
+            obj.delete()
+            if created:
+                raise Http404()
+            return Response({'status': 'picture deleted'})
+
+    permission_classes = [IsOwnerOrReadOnly]
 
 class StudentViewSet(ProfileMixin, ModelViewSet):
     queryset = Student.objects.all()
