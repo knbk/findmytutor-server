@@ -44,6 +44,12 @@ class ProfilePictureViewSet(ModelViewSet):
     serializer_class = ProfilePictureSerializer
     permission_classes = [IsOwnerOrReadOnly]
 
+    def create(self, request, *args, **kwargs):
+        print(request.headers)
+        print(request.data)
+        print(request.body)
+        return super().create(request, *args, **kwargs)
+
     @transaction.atomic()
     def perform_create(self, serializer):
         if hasattr(self.request.user, 'picture'):
