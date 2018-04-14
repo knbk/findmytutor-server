@@ -45,9 +45,7 @@ class ProfilePictureViewSet(ModelViewSet):
     permission_classes = [IsOwnerOrReadOnly]
 
     def create(self, request, *args, **kwargs):
-        print(request.META)
-        print(request.body)
-        print(request.data)
+        print(request._request.FILES)
         return super().create(request, *args, **kwargs)
 
     @transaction.atomic()
