@@ -30,6 +30,15 @@ class LocationSerializer(serializers.ModelSerializer):
 class ProfilePictureSerializer(serializers.ModelSerializer):
     image = serializers.ImageField()
 
+    def create(self, validated_data):
+        image, _ = ProfilePicture.objects.get_or_create(user=self.context['request'].user)
+        image.image = validated_data['image'].read()
+        image.save()
+
+    def update(self, instance, validated_data):
+        instance.image = validated_data['image'].read()
+        instance.save()
+
     class Meta:
         model = ProfilePicture
         fields = ['image']
