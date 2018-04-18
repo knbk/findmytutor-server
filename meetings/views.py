@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.db import transaction
 from django.db.models import Q
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
@@ -36,16 +37,15 @@ class MeetingViewSet(ModelViewSet):
             })
         return qs
 
+    @transaction.atomic()
     def perform_create(self, serializer):
         data = {}
         if self.request.user.type == User.STUDENT:
-            if not self.request.user.profile.tutors.filter(pk=serializer.validated_data['tutor'].pk).exists():
-                self.permission_denied(self.request, 'Tutor not in My Tutors')
+            self.request.user.student.tutors.add(serializer.validated_data['tutor'])
             data['student'] = self.request.user.student
             data['student_accepted_at'] = timezone.now()
         else:
-            if not self.request.user.profile.students.filter(pk=serializer.validated_data['student'].pk).exists():
-                self.permission_denied(self.request, 'Student not in My Students')
+            self.request.user.tutor.students.add(serializer.validated_data['student'])
             data['tutor'] = self.request.user.tutor
             data['tutor_accepted_at'] = timezone.now()
         serializer.save(**data)
