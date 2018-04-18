@@ -32,6 +32,9 @@ class Meeting(models.Model):
             return User.TUTOR
         return User.STUDENT if self.student_accepted_at < self.tutor_accepted_at else User.TUTOR
 
+    class Meta:
+        ordering = ['start']
+
 
 class Review(models.Model):
     RATINGS = tuple((i, str(i)) for i in range(6))
