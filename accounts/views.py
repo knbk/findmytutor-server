@@ -1,5 +1,5 @@
 from django.db import transaction
-from django.db.models import Avg, Value as V
+from django.db.models import Avg, Value as V, Prefetch
 from django.db.models.functions import Coalesce
 from django.http import HttpResponse, Http404
 from django.views.decorators.csrf import csrf_exempt
@@ -97,7 +97,9 @@ class ProfileMixin:
     permission_classes = [IsOwnerOrReadOnly]
 
 class StudentViewSet(ProfileMixin, ModelViewSet):
-    queryset = Student.objects.all()
+    queryset = Student.objects.prefetch_related(
+        Prefetch('tutors', queryset=Tutor.objects.annotate(rating=Coalesce(Avg('meetings__review__rating'), V(0.0)))),
+    )
     serializer_class = StudentSerializer
     permission_classes = [IsOwnerOrReadOnly]
 
