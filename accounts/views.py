@@ -32,8 +32,14 @@ class UserViewSet(ModelViewSet):
     def profile(self, request):
         if not request.user.type:
             return Response({}, status=404)
-        serializer_class = StudentSerializer if request.user.type == User.STUDENT else TutorSerializer
-        serializer = serializer_class(request.user.profile, context={'request': request})
+        tutors = Tutor.objects.annotate(rating=Coalesce(Avg('meetings__review__rating'), V(0.0)))
+        if request.user.type == User.STUDENT:
+            serializer_class = StudentSerializer
+            profile = Student.objects.prefetch_related(Prefetch('tutors', queryset=tutors)).get(user=request.user)
+        else:
+            serializer_class = TutorSerializer
+            profile = tutors.get(user=request.user)
+        serializer = serializer_class(profile, context={'request': request})
         data = serializer.data
         data['type'] = request.user.type
         return Response(data)
