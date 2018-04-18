@@ -20,7 +20,7 @@ class MeetingViewSet(ModelViewSet):
     def get_queryset(self):
         qs = self.request.user.profile.meetings.all()
         if 'past' in self.request.query_params:
-            qs = qs.filter(end__lt=timezone.now())
+            qs = qs.filter(end__lt=timezone.now()).reverse()
         elif 'future' in self.request.query_params:
             qs = qs.filter(end__gte=timezone.now())
             qs = qs.exclude(**{
